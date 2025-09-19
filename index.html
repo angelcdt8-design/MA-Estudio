@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>M&A • MISION ALPHA — Sistema de Estudio/Examen</title>
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#0e1629; --card:#121a2f; --ink:#e9eefc; --muted:#b7c3e0;
+    --pri1:#1e90ff; --pri2:#2ea6ff;
+    --ok1:#19c37d; --ok2:#11a86b;
+    --warn1:#ffd166; --warn2:#ffb703;
+    --danger1:#ff6b6b; --danger2:#ff4d4f;
+    --pink:#e879f9;
+    --shadow: 0 8px 24px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    color:var(--ink); background: radial-gradient(1200px 600px at 15% -10%, #18264a33, transparent), linear-gradient(180deg, #070b14, #0b1220 45%, #0b1220 100%);
+  }
+  a{color:var(--pri2); text-decoration:none}
+  header{
+    position:sticky; top:0; z-index:9; backdrop-filter:saturate(150%) blur(8px);
+  }
+  .hero{
+    max-width:1100px; margin:12px auto 0; padding:16px 20px;
+    background: linear-gradient(180deg, #0f1831, #0c1428); border:1px solid #1f2a44;
+    border-radius:var(--radius); box-shadow:var(--shadow);
+  }
+  .brand{display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  .badge{background:linear-gradient(135deg,#1f2b4b,#132043); border:1px solid #25345d; padding:6px 10px; border-radius:999px; color:#c8d3f3; font-size:12px}
+  .brand h1{margin:0; font-size:28px; letter-spacing:.5px}
+  .brand small{display:block; color:#9fb1da}
+  main{max-width:1100px; margin:14px auto 80px; padding:0 20px}
+  .grid{display:grid; gap:16px}
+  @media(min-width:900px){ .grid.cols-3{grid-template-columns:repeat(3,1fr)} .grid.cols-2{grid-template-columns:1fr 1fr} }
+  .card{
+    background:linear-gradient(180deg,#0e1629,#0f1a31 70%); border:1px solid #1f2a44; border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:18px;
+  }
+  .card h3,.card h2{margin:.2rem 0 .6rem}
+  .muted{color:var(--muted); font-size:13px}
+  .pill{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#172240; border:1px solid #22305a; color:#cfe0ff; font-size:12px; margin:2px 6px 6px 0}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .btn{
+    appearance:none; border:0; cursor:pointer; color:white; padding:10px 14px; border-radius:12px; font-weight:600;
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.15), 0 6px 18px rgba(0,0,0,.25);
+    transition:transform .04s ease, filter .1s ease, opacity .2s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{filter:brightness(1.07)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg,var(--pri2),var(--pri1))}
+  .btn.ok{background:linear-gradient(180deg,var(--ok2),var(--ok1))}
+  .btn.warn{background:linear-gradient(180deg,var(--warn2),var(--warn1)); color:#1a1a1a}
+  .btn.danger{background:linear-gradient(180deg,var(--danger2),var(--danger1))}
+  .btn.ghost{background:#19264b; border:1px solid #2a3a67; color:#d3defa}
+  .btn.slim{padding:7px 10px; font-size:13px}
+  .list{display:flex; flex-direction:column; gap:10px}
+  .item{
+    background:linear-gradient(180deg,#0f1a31,#0c1529); border:1px solid #1e2a49; border-radius:12px; padding:12px 14px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px; cursor:pointer;
+  }
+  .item:hover{border-color:#2a3b66}
+  .kvs{display:flex; gap:8px; flex-wrap:wrap}
+  .kvs .kv{background:#111a31; border:1px solid #223259; border-radius:10px; padding:8px 10px; min-width:120px}
+  .input, textarea, select{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a3a67; background:#0c1428; color:#eaf1ff;
+    outline:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+  }
+  textarea{min-height:110px; resize:vertical}
+  .split{display:grid; gap:14px}
+  @media(min-width:900px){ .split{grid-template-columns:1fr 1fr} }
+  .hr{height:1px; background:linear-gradient(90deg,transparent,#26355f,transparent); margin:12px 0}
+  .tag{font-size:11px; color:#a9b8dc}
+  .qwrap{margin-top:10px}
+  .option{
+    padding:10px 12px; border-radius:10px; border:1px solid #2a3a67; background:#0c1428; cursor:pointer; margin:8px 0;
+  }
+  .option.selected{outline:2px solid #5aa0ff}
+  .option.correct.reveal{background:#083823; border-color:#1c8d63}
+  .option.incorrect.reveal{background:#3a0c12; border-color:#923742}
+  .feedback{min-height:22px; font-weight:600}
+  .feedback.ok{color:#39d98a}
+  .feedback.bad{color:#ff7b8a}
+  .caps{font-variant:all-small-caps; letter-spacing:.4px; color:#9db2df}
+  .tiny{font-size:12px; color:#a8b9e2}
+  .nowrap{white-space:nowrap}
+  .hidden{display:none !important}
+  .right{margin-left:auto}
+  .timer{font-weight:700; letter-spacing:.5px}
+  .table{border-collapse:collapse; width:100%; overflow:auto; font-size:14px}
+  .table th,.table td{border:1px solid #2a3a67; padding:8px; text-align:left}
+  .table th{background:#14224a}
+  .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0b1326; border:1px solid #223259; border-radius:10px; padding:10px}
+  .center{text-align:center}
+  .rightText{text-align:right}
+  .wrap-actions{display:flex; gap:8px; flex-wrap:wrap}
+  .tooltip{border-bottom:1px dashed #6fa8ff; cursor:help}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
+
+</head>
+<body>
+<header>
+  <div class="hero">
+    <div class="brand">
+      <div class="badge">M&A</div>
+      <div>
+        <h1>MISION ALPHA</h1>
+        <small>siempre apoyando a los que no retroceden</small>
+      </div>
+      <div class="pill right">Modo: <b id="modeLabel">Inicio</b></div>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ============================ CORE & STORAGE ============================ */
+  const LS = {
+    CATS: 'mm_categories_v2',
+    STATS: 'mm_stats_v1',
+    BANK_PREFIX: 'bank_v3_', // bank_v3_<catKey>__<subKey>
+  };
+
+  const DEFAULTS = {
+    categories: [
+      { key: 'LEGISLACION_GENERAL', name: 'LEGISLACIÓN GENERAL', subs: [
+        'Ley Federal de Armas','Código de Justicia','Ley Orgánica','Reglamento de Deberes','Ley ISSFAM','Ley de Disciplina','Ley de Ascensos'
+      ]},
+      { key: 'OPERACIONES_MILITARES', name: 'OPERACIONES MILITARES', subs: [
+        'Manual de Operaciones Militares','Manual de Logística Militar','Compendio de Medidas de Información'
+      ]},
+      { key: 'DERECHOS_HUMANOS', name: 'DERECHOS HUMANOS', subs: [
+        'Manual de Derechos Humanos','Ley Nacional del Uso de la Fuerza'
+      ]},
+      { key: 'TACTICA_DE_INFANTERIA', name: 'TÁCTICA DE INFANTERÍA', subs: [
+        'Manual de Táctica de Infantería'
+      ]},
+      { key: 'ADIESTRAMIENTO_Y_MANDO', name: 'ADIESTRAMIENTO Y MANDO', subs: [
+        'Manual de Mando y Liderazgo','Manual de Adiestramiento'
+      ]},
+      { key: 'GUERRA_IRREGULAR', name: 'GUERRA IRREGULAR', subs: [
+        'Manual de Guerra Irregular'
+      ]},
+    ]
+  };
+
+  const el = sel => document.querySelector(sel);
+  const app = el('#app');
+  const setMode = t => el('#modeLabel').textContent = t;
+
+  function loadJSON(k, fallback) {
+    try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+    catch { return fallback; }
+  }
+  function saveJSON(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+
+  function keyFor(catKey, subKey){ return `${LS.BANK_PREFIX}${catKey}__${hashKey(subKey)}`; }
+  function hashKey(t){ return t.normalize('NFKD').replace(/[^\w]+/g,'_').replace(/^_+|_+$/g,''); }
+  function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+
+  function ensureDefaults(){
+    const existing = loadJSON(LS.CATS, []);
+    const merged = [...existing];
+    // merge or add categories/subs without deleting user data
+    DEFAULTS.categories.forEach(def => {
+      const found = merged.find(c => c.key === def.key);
+      if(!found){
+        merged.push({ key:def.key, name:def.name, subs:[...def.subs] });
+      } else {
+        def.subs.forEach(s=>{
+          if(!found.subs.includes(s)) found.subs.push(s);
+        });
+      }
+      // also ensure empty banks exist
+      const cat = found || def;
+      (found?def.subs:cat.subs).forEach(sub=>{
+        const k = keyFor(def.key, sub);
+        if(!localStorage.getItem(k)){
+          saveJSON(k, { pairs:[], mc:[], extras:[] });
+        }
+      });
+    });
+    saveJSON(LS.CATS, merged);
+    if(!localStorage.getItem(LS.STATS)) saveJSON(LS.STATS, []);
+    return merged;
+  }
+
+  /* ============================ RENDER HELPERS ============================ */
+  function btn(label, cls='primary', attrs=''){ return `<button ${attrs} class="btn ${cls}">${label}</button>`; }
+  function pill(t){ return `<span class="pill">${t}</span>`; }
+  function escapeHTML(s){ return String(s ?? '').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+  function shuffle(a){ const arr = a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+  /* ============================ NAV / ROUTER ============================ */
+  const State = { cat:null, sub:null };
+  function goHome(){ State.cat=null; State.sub=null; renderHome(); }
+  function goCat(catKey){ State.cat=catKey; State.sub=null; renderCategory(); }
+  function goSub(subName){ State.sub=subName; renderSub(); }
+
+  /* ============================ STATS ============================ */
+  function addAttempt(entry){
+    const stats = loadJSON(LS.STATS, []);
+    stats.push(entry);
+    while(stats.length>200) stats.shift();
+    saveJSON(LS.STATS, stats);
+  }
+  function getStats(){ return loadJSON(LS.STATS, []); }
+  function avg(arr){ if(!arr.length) return 0; return Math.round((arr.reduce((a,b)=>a+b,0)/arr.length)*100)/100; }
+
+  /* ============================ BANK OPS ============================ */
+  function getBank(catKey, subName){
+    const k = keyFor(catKey, subName);
+    return loadJSON(k, {pairs:[], mc:[], extras:[]});
+  }
+  function setBank(catKey, subName, bank){
+    saveJSON(keyFor(catKey, subName), bank);
+  }
+
+  /* ============================ EXPORTS / IMPORTS ============================ */
+  function download(filename, content, mime='application/json'){
+    const blob = new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportAll(includeStats=true){
+    const categories = loadJSON(LS.CATS, []);
+    const banks = [];
+    categories.forEach(c=>{
+      c.subs.forEach(s=>{
+        const key = keyFor(c.key, s);
+        banks.push({ key, data:getBank(c.key,s) });
+      });
+    });
+    const payload = {
+      type:"MM-BACKUP", version:1, exportedAt: new Date().toISOString(),
+      categories, banks, stats: includeStats ? getStats() : undefined
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  function importAllFromJSON(txt, replaceStats=false){
+    let data;
+    try{ data = JSON.parse(txt); }catch{ alert("JSON inválido."); return false; }
+    if(!data || data.type!=="MM-BACKUP" || data.version!==1 || !Array.isArray(data.categories) || !Array.isArray(data.banks)){
+      alert("Estructura de respaldo no válida."); return false;
+    }
+    // merge categories
+    const current = ensureDefaults();
+    const merged = [...current];
+    data.categories.forEach(dc=>{
+      const found = merged.find(c=>c.key===dc.key);
+      if(!found) merged.push({ key:dc.key, name:dc.name, subs:[...dc.subs] });
+      else {
+        dc.subs.forEach(s=>{ if(!found.subs.includes(s)) found.subs.push(s); });
+      }
+    });
+    saveJSON(LS.CATS, merged);
+    // restore banks
+    data.banks.forEach(b=>{
+      if(b && b.key && b.data && typeof b.data === 'object'){
+        saveJSON(b.key, b.data);
+      }
+    });
+    // stats
+    if(replaceStats && Array.isArray(data.stats)) saveJSON(LS.STATS, data.stats);
+    alert("Importación completada.");
+    return true;
+  }
+
+  function exportBankJSON(catKey, subName){
+    const payload = {
+      type:"MM-BANK", version:1, exportedAt:new Date().toISOString(),
+      catKey, subName, data:getBank(catKey, subName)
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  function importBankJSON(txt, expectedCatKey, expectedSubName){
+    try{
+      const obj = JSON.parse(txt);
+      if(obj.type!=="MM-BANK" || obj.version!==1) throw 0;
+      if(obj.catKey!==expectedCatKey || obj.subName!==expectedSubName) {
+        if(!confirm("El banco parece pertenecer a otra submateria/categoría. ¿Importar de todos modos y reemplazar?")) return false;
+      }
+      setBank(expectedCatKey, expectedSubName, obj.data || {pairs:[], mc:[], extras:[]});
+      alert("Banco importado.");
+      return true;
+    }catch{
+      alert("JSON de banco inválido.");
+      return false;
+    }
+  }
+
+  /* ============================ SAVE SELF-CONTAINED HTML ============================ */
+  function buildSelfContainedHTML(scope){
+    // scope: {type:'ALL'} | {type:'CAT', catKey} | {type:'SUB', catKey, subName}
+    const base = document.documentElement.outerHTML;
+    const categories = loadJSON(LS.CATS, []);
+    const include = { categories:[], banks:[], stats:getStats() };
+    if(scope.type==='ALL'){
+      include.categories = categories;
+      categories.forEach(c=>c.subs.forEach(s=>include.banks.push({ key:keyFor(c.key,s), data:getBank(c.key,s) })));
+    } else if(scope.type==='CAT'){
+      const cat = categories.find(c=>c.key===scope.catKey);
+      if(!cat){ alert("Categoría no encontrada."); return; }
+      include.categories = [cat];
+      cat.subs.forEach(s=>include.banks.push({ key:keyFor(cat.key,s), data:getBank(cat.key,s) }));
+    } else if(scope.type==='SUB'){
+      const cat = categories.find(c=>c.key===scope.catKey);
+      if(!cat){ alert("Categoría no encontrada."); return; }
+      include.categories = [ { key:cat.key, name:cat.name, subs:[scope.subName] } ];
+      include.banks.push({ key:keyFor(cat.key, scope.subName), data:getBank(cat.key, scope.subName) });
+    }
+    const marker = '
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+  });
+}
+</script>
+
+</body>';
+    const embed = `<script>window.__EMBED__=${JSON.stringify(include)};<\/script>`;
+    const html = base.replace(marker, embed + '\n
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+  });
+}
+</script>
+
+</body>');
+    return html;
+  }
+
+  function bootFromEmbedIfAny(){
+    if(window.__EMBED__){
+      // Write embedded data to localStorage (merge cats, overwrite banks)
+      const current = ensureDefaults();
+      const inc = window.__EMBED__;
+      // categories merge
+      const merged = [...current];
+      (inc.categories||[]).forEach(dc=>{
+        const found = merged.find(c=>c.key===dc.key);
+        if(!found) merged.push({ key:dc.key, name:dc.name, subs:[...dc.subs] });
+        else dc.subs.forEach(s=>{ if(!found.subs.includes(s)) found.subs.push(s); });
+      });
+      saveJSON(LS.CATS, merged);
+      // banks overwrite/seed
+      (inc.banks||[]).forEach(b=>{ if(b && b.key) saveJSON(b.key, b.data||{pairs:[],mc:[],extras:[]}); });
+      // stats optional merge (append)
+      if(Array.isArray(inc.stats)){
+        const stats = getStats().concat(inc.stats);
+        while(stats.length>200) stats.shift();
+        saveJSON(LS.STATS, stats);
+      }
+    }
+  }
+
+  /* ============================ HOME ============================ */
+  function renderHome(){
+    setMode('Inicio');
+    const cats = ensureDefaults();
+    const items = cats.map(c=>`
+      <div class="item" data-cat="${c.key}">
+        <div>
+          <div><b>${escapeHTML(c.name)}</b></div>
+          <div class="tiny">${c.subs.length} submateria(s)</div>
+        </div>
+        <div class="row">
+          ${btn('Entrar','primary slim')}
+          ${btn('EXAMEN','danger slim',`data-exam-cat="${c.key}"`)}
+        </div>
+      </div>
+    `).join('');
+    app.innerHTML = `
+      <section class="card">
+        <h2>Inicio</h2>
+        <p class="muted">Selecciona una materia o usa las acciones globales.</p>
+        <div class="wrap-actions">
+          ${btn('EXAMEN (global)','danger', 'id="btnExamAll"')}
+          ${btn('📊 Estadística','ghost', 'id="btnStats"')}
+          ${btn('💾 Guardar HTML (todas las materias)','primary', 'id="btnSaveAll"')}
+          ${btn('⬇️ Respaldar todo (JSON)','ok', 'id="btnBackupAll"')}
+          <label class="btn warn" for="fileImportAll">⬆️ Importar todo (JSON)</label>
+          <input id="fileImportAll" type="file" accept=".json,application/json" class="hidden">
+          ${btn('🧨 Reset total','danger', 'id="btnResetAll"')}
+        </div>
+        <div class="hr"></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Acciones globales</h3>
+            <ul class="muted">
+              <li><b>EXAMEN</b> (global): genera un examen por materia (hasta 30 ítems por materia con banco).</li>
+              <li><b>📊 Estadística</b>: promedios y últimos intentos.</li>
+              <li><b>💾 Guardar HTML</b>: exporta este sitio con tus bancos incrustados para usar offline.</li>
+              <li><b>⬇️/⬆️</b> Respaldar/Importar TODO (JSON) incluyendo categorías, bancos y opcionalmente estadísticas.</li>
+              <li><b>🧨 Reset total</b>: borra TODOS los datos (cuidado).</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Consejos</h3>
+            <p class="muted">Agrega pares “Término: Definición” por submateria. En opción múltiple, se mostrará la <b>definición</b> y deberás elegir el <b>término</b>. Puedes fijar un <span class="tooltip" title="Este distractor siempre acompaña al par">distractor fijo</span> por par.</p>
+          </div>
+        </div>
+      </section>
+      <section class="card">
+        <h3>Materias</h3>
+        <div class="list">${items}</div>
+      </section>
+    `;
+
+    // Events
+    app.querySelectorAll('.item .btn.primary').forEach(b=>{
+      b.addEventListener('click', e=>{
+        const key = b.closest('.item').dataset.cat;
+        goCat(key);
+      });
+    });
+    app.querySelectorAll('[data-exam-cat]').forEach(b=>{
+      b.addEventListener('click', ()=> startExamForCategory(b.dataset.examCat));
+    });
+    el('#btnExamAll').onclick = ()=> startExamGlobal();
+    el('#btnStats').onclick = ()=> renderStats();
+    el('#btnBackupAll').onclick = ()=>{
+      const json = exportAll(true);
+      download(`MM-Backup-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`, json);
+    };
+    el('#fileImportAll').onchange = evt=>{
+      const f = evt.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const replaceStats = confirm("¿Reemplazar también estadísticas con las del archivo?");
+        if(importAllFromJSON(reader.result, replaceStats)) goHome();
+      };
+      reader.readAsText(f);
+      evt.target.value='';
+    };
+    el('#btnSaveAll').onclick = ()=>{
+      const html = buildSelfContainedHTML({type:'ALL'});
+      download(`MM-HTML-TODO-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.html`, html, 'text/html');
+    };
+    el('#btnResetAll').onclick = ()=>{
+      if(!confirm("Esto eliminará TODAS las categorías, bancos y estadísticas. ¿Continuar?")) return;
+      Object.keys(localStorage).forEach(k=>{
+        if(k.startsWith(LS.BANK_PREFIX) || k===LS.CATS || k===LS.STATS) localStorage.removeItem(k);
+      });
+      ensureDefaults(); goHome();
+    };
+  }
+
+  /* ============================ CATEGORY VIEW ============================ */
+  function renderCategory(){
+    const cats = ensureDefaults();
+    const cat = cats.find(c=>c.key===State.cat);
+    if(!cat){ goHome(); return; }
+    setMode('Materia');
+    const subs = cat.subs.map(s=>`
+      <div class="item" data-sub="${escapeHTML(s)}">
+        <div>
+          <div><b>${escapeHTML(s)}</b></div>
+          <div class="tiny">${getBank(cat.key, s).pairs.length} pares • ${getBank(cat.key,s).mc.length} MC • extras:${getBank(cat.key,s).extras.length}</div>
+        </div>
+        <div class="row">
+          ${btn('Entrar','primary slim')}
+        </div>
+      </div>
+    `).join('');
+    app.innerHTML = `
+      <section class="card">
+        <div class="row">
+          ${pill('Materia: '+escapeHTML(cat.name))}
+          <span class="right"></span>
+          ${btn('⬅️ Inicio','ghost','id="backHome"')}
+        </div>
+        <div class="wrap-actions" style="margin-top:8px">
+          ${btn('EXAMEN (materia)','danger','id="btnExamCat"')}
+          ${btn('💾 Guardar HTML (toda la materia)','primary','id="btnSaveCat"')}
+          ${btn('➕ Agregar submateria','ok','id="btnAddSub"')}
+        </div>
+      </section>
+      <section class="card">
+        <h3>Submaterias</h3>
+        <div class="list">${subs}</div>
+      </section>
+    `;
+    el('#backHome').onclick = goHome;
+    el('#btnExamCat').onclick = ()=> startExamForCategory(cat.key);
+    el('#btnSaveCat').onclick = ()=>{
+      const html = buildSelfContainedHTML({type:'CAT', catKey:cat.key});
+      download(`MM-HTML-${hashKey(cat.name)}-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.html`, html, 'text/html');
+    };
+    el('#btnAddSub').onclick = ()=>{
+      const name = prompt("Nombre de la nueva submateria:");
+      if(!name) return;
+      const cats2 = ensureDefaults();
+      const c2 = cats2.find(x=>x.key===cat.key);
+      if(!c2.subs.includes(name)) c2.subs.push(name);
+      saveJSON(LS.CATS, cats2);
+      setBank(cat.key, name, getBank(cat.key, name)); // ensure key exists
+      renderCategory();
+    };
+    app.querySelectorAll('[data-sub] .btn.primary').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        goSub(b.closest('[data-sub]').dataset.sub);
+      });
+    });
+  }
+
+  /* ============================ SUB VIEW ============================ */
+  function renderSub(){
+    const cats = ensureDefaults();
+    const cat = cats.find(c=>c.key===State.cat);
+    if(!cat){ goHome(); return; }
+    const sub = State.sub;
+    const bank = getBank(cat.key, sub);
+    setMode('Submateria');
+    const pairList = bank.pairs.map(p=>`
+      <tr data-id="${p.id}">
+        <td>${escapeHTML(p.term)}</td>
+        <td>${escapeHTML(p.def)}</td>
+        <td>${escapeHTML(p.fixedDistractor || '')}</td>
+        <td class="rightText"><button class="btn ghost slim" data-edit="${p.id}">Editar</button></td>
+      </tr>
+    `).join('') || `<tr><td colspan="4" class="muted">Sin pares aún.</td></tr>`;
+    const mcCount = bank.mc.length;
+
+    app.innerHTML = `
+      <section class="card">
+        <div class="row">
+          ${pill('Materia: '+escapeHTML(cat.name))}
+          ${pill('Submateria: '+escapeHTML(sub))}
+          ${pill('Banco: '+(bank.pairs.length + mcCount)+' ítems')}
+          <span class="right"></span>
+          ${btn('⬅️ Materia','ghost','id="backCat"')}
+        </div>
+        <div class="wrap-actions">
+          ${btn('REPASO','primary','id="btnRepaso"')}
+          ${btn('EXAMEN','danger','id="btnExam"')}
+          ${btn('TARJETAS DE ESTUDIO','ok','id="btnCards"')}
+          <span class="pill">Ayuda:</span>
+          <span class="tiny">• <b>Repaso</b>: evalúa al instante, sin revelar respuesta. • <b>Examen</b>: sin retro hasta el final, con/ sin temporizador. • <b>Tarjetas</b>: muestra definición y luego revelas el término.</span>
+        </div>
+      </section>
+
+      <section class="split">
+        <div class="card">
+          <h3>Ingreso masivo de pares</h3>
+          <p class="muted">Pega líneas como <b>“Término: Definición”</b> o <b>“Término | Definición”</b>. También se detectan patrones tipo <b>“X es …”</b>.</p>
+          <textarea id="taPairs" placeholder="Ejemplo:
+Comunicación: Interacción recíproca entre emisor y receptor.
+Mensaje | Conjunto de signos transmitidos de un emisor a un receptor.
+La comunicación intrapersonal es un proceso con uno mismo..."></textarea>
+          <div class="row" style="margin-top:8px">
+            ${btn('➕ Extraer pares','ok','id="btnExtract"')}
+            <span id="extractMsg" class="tiny"></span>
+          </div>
+          <div class="hr"></div>
+          <h4>Distractores extra (opcionales)</h4>
+          <p class="muted">Se usan si faltan términos para completar 4 opciones. Uno por línea.</p>
+          <textarea id="taExtras" placeholder="distractor 1&#10;distractor 2"></textarea>
+          <div class="row" style="margin-top:8px">
+            ${btn('💾 Guardar distractores extra','primary','id="btnSaveExtras"')}
+          </div>
+          <div class="hr"></div>
+          <h4>Mini editor MC (manual)</h4>
+          <div class="grid cols-2">
+            <div>
+              <label class="tiny">Definición</label>
+              <textarea id="mcDef" placeholder="Texto de la pregunta (definición)"></textarea>
+            </div>
+            <div>
+              <div class="grid cols-2">
+                <div><label class="tiny">Opción A (correcta)</label><input id="mcA" class="input" /></div>
+                <div><label class="tiny">Opción B</label><input id="mcB" class="input" /></div>
+                <div><label class="tiny">Opción C</label><input id="mcC" class="input" /></div>
+                <div><label class="tiny">Opción D</label><input id="mcD" class="input" /></div>
+              </div>
+              <label class="row tiny" style="margin-top:6px"><input type="checkbox" id="mcPriority" style="accent-color:#5aa0ff; margin-right:8px"> Pregunta prioritaria</label>
+              <div class="wrap-actions" style="margin-top:8px">
+                ${btn('➕ Agregar ítem','ok','id="btnAddMC"')}
+                ${btn('Cerrar','ghost','id="btnCloseMC"')}
+                ${btn('🧹 Limpiar','warn','id="btnClearMC"')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Banco de pares</h3>
+          <div class="wrap-actions">
+            ${btn('⬇️ Exportar banco (JSON)','ghost','id="btnExportBank"')}
+            <label class="btn warn slim" for="fileImportBank">⬆️ Importar banco (JSON)</label>
+            <input id="fileImportBank" type="file" accept=".json,application/json" class="hidden">
+            ${btn('🗑️ Vaciar banco','danger','id="btnClearBank"')}
+            ${btn('💾 Guardar HTML (solo esta submateria)','primary','id="btnSaveSub"')}
+          </div>
+          <div style="overflow:auto; margin-top:8px">
+            <table class="table">
+              <thead><tr><th>Término</th><th>Definición</th><th>Distractor fijo</th><th></th></tr></thead>
+              <tbody id="pairTbody">${pairList}</tbody>
+            </table>
+          </div>
+          <p class="tiny">El <b>distractor fijo</b> siempre acompaña al par en los cuestionarios; los otros dos distractores se eligen al azar de la misma submateria (o de extras si faltan).</p>
+        </div>
+      </section>
+
+      <dialog id="dlgEdit" style="border:0; border-radius:14px; padding:0; width:min(680px, 96vw);">
+        <div class="card" style="margin:0">
+          <h3>Editor de par</h3>
+          <div class="grid cols-2">
+            <div><label class="tiny">Término</label><input id="eTerm" class="input"></div>
+            <div><label class="tiny">Distractor fijo (opcional)</label><input id="eFixed" class="input"></div>
+            <div class="grid cols-1" style="grid-column:1/-1">
+              <label class="tiny">Definición</label><textarea id="eDef"></textarea>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            ${btn('💾 Guardar cambios','ok','id="eSave"')}
+            ${btn('🗑️ Eliminar par','danger','id="eDelete"')}
+            <span class="right"></span>
+            ${btn('Cancelar','ghost','id="eCancel"')}
+          </div>
+        </div>
+      </dialog>
+    `;
+
+    el('#backCat').onclick = ()=> goCat(cat.key);
+
+    // actions
+    el('#btnRepaso').onclick = ()=> startQuiz(cat, sub, {mode:'REPASO'});
+    el('#btnExam').onclick = ()=> renderExamConfig(cat, sub);
+    el('#btnCards').onclick = ()=> startCards(cat, sub);
+
+    // extract pairs
+    el('#btnExtract').onclick = ()=>{
+      const text = el('#taPairs').value;
+      const added = parsePairsAndAppend(bank, text);
+      setBank(cat.key, sub, bank);
+      el('#extractMsg').textContent = `Se añadieron ${added} par(es).`;
+      renderSub(); // refresh list
+    };
+
+    // extras
+    el('#btnSaveExtras').onclick = ()=>{
+      const lines = el('#taExtras').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      bank.extras = lines;
+      setBank(cat.key, sub, bank);
+      alert("Extras guardados.");
+    };
+
+    // MC mini editor
+    el('#btnAddMC').onclick = ()=>{
+      const def = el('#mcDef').value.trim();
+      const A = el('#mcA').value.trim(), B=el('#mcB').value.trim(), C=el('#mcC').value.trim(), D=el('#mcD').value.trim();
+      if(!def || !A || !B || !C || !D){ alert("Completa definición y las 4 opciones."); return; }
+      bank.mc.push({
+        def, options:[
+          {text:A, isCorrect:true},
+          {text:B, isCorrect:false},
+          {text:C, isCorrect:false},
+          {text:D, isCorrect:false},
+        ],
+        priority: !!el('#mcPriority').checked,
+        id: uid()
+      });
+      setBank(cat.key, sub, bank);
+      alert("Ítem agregado.");
+      renderSub();
+    };
+    el('#btnClearMC').onclick = ()=>{ el('#mcDef').value=''; el('#mcA').value=''; el('#mcB').value=''; el('#mcC').value=''; el('#mcD').value=''; el('#mcPriority').checked=false; };
+    el('#btnCloseMC').onclick = ()=> window.scrollTo({top:0, behavior:'smooth'});
+
+    // bank export/import/clear/savehtml
+    el('#btnExportBank').onclick = ()=>{
+      const json = exportBankJSON(cat.key, sub);
+      download(`MM-BANK-${hashKey(cat.name)}-${hashKey(sub)}.json`, json);
+    };
+    el('#fileImportBank').onchange = evt=>{
+      const f = evt.target.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = ()=>{ if(importBankJSON(r.result, cat.key, sub)) renderSub(); };
+      r.readAsText(f); evt.target.value='';
+    };
+    el('#btnClearBank').onclick = ()=>{
+      if(!confirm("¿Vaciar TODOS los pares, MC y extras de esta submateria?")) return;
+      setBank(cat.key, sub, {pairs:[], mc:[], extras:[]});
+      renderSub();
+    };
+    el('#btnSaveSub').onclick = ()=>{
+      const html = buildSelfContainedHTML({type:'SUB', catKey:cat.key, subName:sub});
+      download(`MM-HTML-${hashKey(cat.name)}--${hashKey(sub)}.html`, html, 'text/html');
+    };
+
+    // pair edit
+    const dlg = el('#dlgEdit');
+    let currentEditId = null;
+    app.querySelectorAll('[data-edit]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        currentEditId = b.dataset.edit;
+        const p = bank.pairs.find(x=>x.id===currentEditId);
+        if(!p) return;
+        el('#eTerm').value = p.term;
+        el('#eFixed').value = p.fixedDistractor || '';
+        el('#eDef').value = p.def;
+        dlg.showModal();
+      });
+    });
+    el('#eCancel').onclick = ()=> dlg.close();
+    el('#eSave').onclick = ()=>{
+      const p = bank.pairs.find(x=>x.id===currentEditId); if(!p) return;
+      p.term = el('#eTerm').value.trim();
+      p.fixedDistractor = el('#eFixed').value.trim() || null;
+      p.def = el('#eDef').value.trim();
+      setBank(cat.key, sub, bank);
+      dlg.close(); renderSub();
+    };
+    el('#eDelete').onclick = ()=>{
+      if(!confirm("¿Eliminar este par?")) return;
+      const idx = bank.pairs.findIndex(x=>x.id===currentEditId);
+      if(idx>=0){ bank.pairs.splice(idx,1); setBank(cat.key, sub, bank); }
+      dlg.close(); renderSub();
+    };
+  }
+
+  function parsePairsAndAppend(bank, text){
+    const lines = text.split('\n');
+    let count=0;
+    lines.forEach(line=>{
+      const s = line.trim();
+      if(!s) return;
+      let term='', def='';
+      // Pattern 1: "Termino: Definición" or "Termino - Definición" or "Termino | Definición"
+      let m = s.match(/^(.+?)\s*(?:[:\-|])\s+(.+)$/);
+      if(m){ term=m[1].trim(); def=m[2].trim(); }
+      else{
+        // Pattern 2: "X es ..." or "X son ..." -> take before ' es ' / ' son '
+        let m2 = s.match(/^(.+?)\s+(?:es|son)\s+(.+)$/i);
+        if(m2){ term=m2[1].trim(); def=(m2[2].trim()); }
+      }
+      if(term && def){
+        bank.pairs.push({ term, def, fixedDistractor:null, id:uid() });
+        count++;
+      }
+    });
+    return count;
+  }
+
+  /* ============================ QUESTION BUILDING ============================ */
+  function buildQuestions(cat, sub, limits=null){
+    const bank = getBank(cat.key, sub);
+    const questions = [];
+
+    // 1) Manual MC — priority first
+    const manual = bank.mc.slice();
+    const prior = manual.filter(x=>x.priority);
+    const normal = manual.filter(x=>!x.priority);
+
+    // 2) Pairs -> MC
+    const pairAsMC = bank.pairs.map(p=>{
+      return {
+        kind:'PAIR',
+        id:p.id,
+        def:p.def,
+        term:p.term,
+        fixed:p.fixedDistractor,
+      };
+    });
+
+    // merge all
+    let pool = [
+      ...prior.map(x=>({ kind:'MC', item:x })),
+      ...normal.map(x=>({ kind:'MC', item:x })),
+      ...pairAsMC
+    ];
+
+    if(limits && limits.max){
+      // prefer priorities automatically by the ordering above
+      // but keep all pair items after manual if space allows
+    }
+    // final selection
+    let selected = pool;
+    if(limits && limits.max) selected = pool.slice(0, limits.max);
+
+    // convert to runtime questions with shuffled options
+    const built = selected.map(entry=>{
+      if(entry.kind==='MC'){
+        const opts = shuffle(entry.item.options.map(o=>({ text:o.text, correct:!!o.isCorrect })));
+        return { type:'MC', def:entry.item.def, options:opts, source:'manual', sid:entry.item.id };
+      } else {
+        const p = entry;
+        // build options = [correct term, fixed(if distinct), 2 random from same sub, fill with extras]
+        const correct = p.term;
+        const optsSet = new Set();
+        const opts = [];
+        const pushTerm = (t, correct=false)=>{
+          if(!t) return;
+          if(optsSet.has(t)) return;
+          optsSet.add(t);
+          opts.push({ text:t, correct });
+        };
+        pushTerm(correct, true);
+        if(p.fixed && p.fixed!==correct) pushTerm(p.fixed, false);
+
+        // terms from same sub
+        const termsPool = shuffle(getBank(cat.key, sub).pairs.map(x=>x.term).filter(t=>t!==correct && t!==p.fixed));
+        for(const t of termsPool){ if(opts.length>=4) break; pushTerm(t,false); }
+
+        // extras if needed
+        const extras = shuffle(getBank(cat.key, sub).extras || []);
+        for(const e of extras){ if(opts.length>=4) break; pushTerm(e,false); }
+
+        // if still missing, pad with generic distractors (rare)
+        while(opts.length<4) pushTerm('N/A '+uid().slice(0,3), false);
+
+        const finalOpts = shuffle(opts.slice(0,4));
+        return { type:'PAIR', def:p.def, options:finalOpts, source:'pair', sid:p.id };
+      }
+    });
+
+    return built;
+  }
+
+  /* ============================ QUIZ ENGINE ============================ */
+  function startQuiz(cat, sub, {mode, config}){
+    const limits = config?.limits || null;
+    const timerOn = config?.timerOn || false;
+    const cats = ensureDefaults();
+    const bank = getBank(cat.key, sub);
+    const availableCount = bank.pairs.length + bank.mc.length;
+    if(!availableCount){ alert("No hay ítems en esta submateria."); return; }
+
+    let qList = buildQuestions(cat, sub, limits ? {max:limits} : null);
+    // If limits greater than pool, clamp
+    if(limits && qList.length>limits) qList = qList.slice(0,limits);
+    // Shuffle question order freshly
+    qList = shuffle(qList);
+
+    const answers = new Array(qList.length).fill(null);
+    let idx = 0;
+    let startedAt = Date.now();
+    let timerId = null;
+    let perQSeconds = 45;
+    let remaining = timerOn ? qList.length * perQSeconds : null;
+
+    function render(){
+      const q = qList[idx];
+      setMode(`${mode} • ${sub}`);
+      app.innerHTML = `
+        <section class="card">
+          <div class="row">
+            ${pill('Materia: '+escapeHTML(cat.name))}
+            ${pill('Submateria: '+escapeHTML(sub))}
+            ${pill('Modo: '+mode)}
+            ${pill(`${idx+1} / ${qList.length}`)}
+            ${timerOn ? `<span class="pill timer">⏱️ Tiempo: <b id="timeLeft"></b></span>` : ''}
+            <span class="right"></span>
+            ${btn('Salir','ghost','id="btnExit"')}
+          </div>
+          <div class="hr"></div>
+          <div class="qwrap">
+            <div class="caps">Definición</div>
+            <div style="margin:6px 0 10px" class="code">${escapeHTML(q.def)}</div>
+            <div class="caps">Selecciona el término</div>
+            <div id="opts"></div>
+            <div id="feedback" class="feedback"></div>
+            <div class="row" style="margin-top:10px">
+              ${btn('Anterior','ghost','id="btnPrev"')}
+              <span class="right"></span>
+              ${ idx < qList.length-1 ? btn('Siguiente','primary','id="btnNext"') : btn('Finalizar','ok','id="btnFinish"') }
+            </div>
+          </div>
+        </section>
+      `;
+      const optsWrap = el('#opts');
+      q.options.forEach((op, i)=>{
+        const div = document.createElement('div');
+        div.className = 'option';
+        if(answers[idx]===i) div.classList.add('selected');
+        div.textContent = op.text;
+        div.addEventListener('click', ()=>{
+          answers[idx]=i;
+          // make sure last click is captured before finishing (historical bug fix)
+          if(el('#btnFinish')) el('#btnFinish').dataset.ready="1";
+          document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));
+          div.classList.add('selected');
+          if(mode==='REPASO'){
+            const ok = q.options[i].correct;
+            const fb = el('#feedback');
+            fb.textContent = ok ? '✅ ¡Correcto!' : '❌ Incorrecta.';
+            fb.className = 'feedback ' + (ok?'ok':'bad');
+          }
+        });
+        optsWrap.appendChild(div);
+      });
+
+      el('#btnPrev').onclick = ()=>{ if(idx>0){ idx--; render(); } };
+      const goNext = ()=>{ if(idx<qList.length-1){ idx++; render(); } };
+      if(el('#btnNext')) el('#btnNext').onclick = goNext;
+
+      el('#btnExit').onclick = ()=>{
+        if(confirm("¿Salir del modo actual? No se guardará el intento.")){
+          renderSub();
+        }
+      };
+      if(el('#btnFinish')) el('#btnFinish').onclick = ()=>{
+        // ensure last click recorded (if any)
+        // if button shows dataset.ready it means last selection already set; proceed
+        // validate unanswered
+        const missing = answers.findIndex(a=>a===null);
+        if(missing!==-1){
+          alert(`Falta responder la pregunta ${missing+1}.`);
+          idx = missing; render(); return;
+        }
+        // grade
+        const right = answers.reduce((acc, ans, i)=> acc + (qList[i].options[ans].correct?1:0), 0);
+        const total = qList.length;
+        const score100 = Math.round((right/total)*100);
+        // stats
+        addAttempt({ date:new Date().toISOString(), scope:'SUB', catName:cat.name, subName:sub, right, total, score100 });
+        // show results
+        renderResults({mode, cat, sub, qList, answers, right, total, score100, allowRetry:true});
+      };
+
+      if(timerOn){
+        const tl = el('#timeLeft');
+        tl.textContent = fmtTime(remaining);
+        if(timerId) clearInterval(timerId);
+        timerId = setInterval(()=>{
+          remaining--;
+          if(remaining<0){ clearInterval(timerId); finishDueTime(); return; }
+          const tEl = el('#timeLeft');
+          if(tEl) tEl.textContent = fmtTime(remaining);
+        }, 1000);
+      }
+    }
+
+    function finishDueTime(){
+      // unanswered remain null; jump grading immediately
+      const right = answers.reduce((acc, ans, i)=> acc + (ans!==null && qList[i].options[ans].correct?1:0), 0);
+      const total = qList.length;
+      const score100 = Math.round((right/total)*100);
+      addAttempt({ date:new Date().toISOString(), scope:'SUB', catName:cat.name, subName:sub, right, total, score100 });
+      renderResults({mode, cat, sub, qList, answers, right, total, score100, allowRetry:true, timedOut:true});
+    }
+
+    render();
+  }
+
+  function fmtTime(sec){
+    const m = Math.floor(sec/60), s = sec%60;
+    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  function renderResults({mode, cat, sub, qList, answers, right, total, score100, allowRetry=false, timedOut=false}){
+    setMode('Resultados');
+    const wrongList = [];
+    const rightList = [];
+    qList.forEach((q,i)=>{
+      const chosen = answers[i];
+      const chosenText = chosen===null ? '(sin respuesta)' : q.options[chosen].text;
+      const correctText = q.options.find(o=>o.correct).text;
+      const row = `<tr><td>${i+1}</td><td>${escapeHTML(q.def)}</td><td>${escapeHTML(chosenText)}</td><td>${escapeHTML(correctText)}</td></tr>`;
+      if(chosen!==null && q.options[chosen].correct) rightList.push(row); else wrongList.push(row);
+    });
+
+    app.innerHTML = `
+      <section class="card">
+        <h2>Resultados ${sub ? '• '+escapeHTML(sub) : ''}</h2>
+        <div class="kvs">
+          <div class="kv"><div class="tiny">Aciertos</div><div><b>${right} / ${total}</b></div></div>
+          <div class="kv"><div class="tiny">Calificación</div><div><b>${score100} / 100</b></div></div>
+          ${timedOut ? `<div class="kv"><div class="tiny">Estado</div><div><b>Tiempo agotado</b></div></div>`:''}
+        </div>
+        <div class="row" style="margin-top:10px">
+          ${allowRetry ? btn('Volver a intentar','primary','id="btnRetry"'):''}
+          ${btn('📊 Ver estadística','ghost','id="btnStats"')}
+          ${btn('Inicio','ok','id="btnHome"')}
+        </div>
+        <div class="hr"></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Incorrectas</h3>
+            <div style="overflow:auto">
+              <table class="table"><thead><tr><th>#</th><th>Definición</th><th>Elegida</th><th>Correcta</th></tr></thead><tbody>${wrongList.join('') || `<tr><td colspan="4" class="muted">Sin errores.</td></tr>`}</tbody></table>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Correctas</h3>
+            <div style="overflow:auto">
+              <table class="table"><thead><tr><th>#</th><th>Definición</th><th>Elegida</th><th>Correcta</th></tr></thead><tbody>${rightList.join('') || `<tr><td colspan="4" class="muted">Sin aciertos.</td></tr>`}</tbody></table>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+    if(el('#btnRetry')) el('#btnRetry').onclick = ()=>{
+      // Retry reuses same question set but reshuffles options
+      const newList = qList.map(q=>{
+        const cloned = {...q, options: shuffle(q.options.slice())};
+        return cloned;
+      });
+      // keep same limit; no timer info here (retry from sub EXAMEN config not present)
+      // default to EXAMEN mode if previous was EXAMEN, otherwise REPASO
+      const mode2 = (mode==='EXAMEN') ? 'EXAMEN' : 'REPASO';
+      // For fairness, no timer on retry unless user reconfigura; here keep off
+      startQuiz(cat, sub, {mode:mode2, config:{timerOn:false}});
+    };
+    el('#btnHome').onclick = goHome;
+    el('#btnStats').onclick = renderStats;
+  }
+
+  /* ============================ EXAM CONFIG (SUB) ============================ */
+  function renderExamConfig(cat, sub){
+    setMode('Configurar examen');
+    app.innerHTML = `
+      <section class="card">
+        <div class="row">
+          ${pill('Materia: '+escapeHTML(cat.name))}
+          ${pill('Submateria: '+escapeHTML(sub))}
+          <span class="right"></span>
+          ${btn('⬅️ Volver','ghost','id="backSub"')}
+        </div>
+        <h3>Examen — ${escapeHTML(sub)}</h3>
+        <div class="grid cols-3">
+          <div class="card">
+            <label class="tiny">Cantidad de preguntas</label>
+            <select id="selQty" class="input">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30" selected>30</option>
+              <option value="50">50</option>
+              <option value="0">Todo</option>
+            </select>
+          </div>
+          <div class="card">
+            <label class="tiny">Temporizador</label>
+            <select id="selTimer" class="input">
+              <option value="on">ON (45 s/pregunta)</option>
+              <option value="off" selected>OFF</option>
+            </select>
+          </div>
+          <div class="card center">
+            <div class="muted" style="margin-bottom:10px">Sin retroalimentación hasta finalizar. “Finalizar” solo en la última pregunta. Si hay sin responder, te llevará a la primera pendiente.</div>
+            ${btn('Comenzar','danger','id="btnStart"')}
+          </div>
+        </div>
+      </section>
+    `;
+    el('#backSub').onclick = renderSub;
+    el('#btnStart').onclick = ()=>{
+      const qty = parseInt(el('#selQty').value,10);
+      const timerOn = (el('#selTimer').value==='on');
+      const limits = qty===0 ? null : qty;
+      startQuiz(cat, sub, {mode:'EXAMEN', config:{limits, timerOn}});
+    };
+  }
+
+  /* ============================ CARDS (TARJETAS) ============================ */
+  function startCards(cat, sub){
+    const bank = getBank(cat.key, sub);
+    const pool = shuffle([
+      ...bank.pairs.map(p=>({type:'PAIR', def:p.def, term:p.term})),
+      ...bank.mc.map(m=>({type:'MC', def:m.def, term: (m.options.find(o=>o.isCorrect)||{}).text || '(correcta)'}))
+    ]);
+    if(!pool.length){ alert("No hay ítems en esta submateria."); return; }
+    let idx=0, reveal=false;
+
+    function render(){
+      setMode('Tarjetas');
+      const card = pool[idx];
+      app.innerHTML = `
+        <section class="card">
+          <div class="row">
+            ${pill('Materia: '+escapeHTML(cat.name))}
+            ${pill('Submateria: '+escapeHTML(sub))}
+            ${pill(`${idx+1} / ${pool.length}`)}
+            <span class="right"></span>
+            ${btn('Salir','ghost','id="btnExit"')}
+          </div>
+          <div class="hr"></div>
+          <div class="caps">Definición</div>
+          <div class="code" style="margin:6px 0 14px">${escapeHTML(card.def)}</div>
+          <div class="center" style="margin:14px 0">
+            ${reveal ? `<div class="btn ok" style="cursor:default">Término: ${escapeHTML(card.term)}</div>` : btn('Revelar término','primary','id="btnReveal"')}
+          </div>
+          <div class="row">
+            ${btn('Anterior','ghost','id="btnPrev"')}
+            <span class="right"></span>
+            ${btn('Siguiente','primary','id="btnNext"')}
+          </div>
+        </section>
+      `;
+      el('#btnExit').onclick = renderSub;
+      if(el('#btnReveal')) el('#btnReveal').onclick = ()=>{ reveal=true; render(); };
+      el('#btnPrev').onclick = ()=>{ if(idx>0){ idx--; reveal=false; render(); } };
+      el('#btnNext').onclick = ()=>{ if(idx<pool.length-1){ idx++; reveal=false; render(); } else { alert("Fin de tarjetas."); renderSub(); } };
+    }
+    render();
+  }
+
+  /* ============================ CATEGORY EXAM & GLOBAL EXAM ============================ */
+  function startExamForCategory(catKey){
+    const cats = ensureDefaults();
+    const cat = cats.find(c=>c.key===catKey);
+    if(!cat){ alert("Materia no encontrada."); return; }
+    // build up to 30 per sub that has items
+    const subQs = [];
+    cat.subs.forEach(s=>{
+      const bank = getBank(cat.key, s);
+      const count = bank.pairs.length + bank.mc.length;
+      if(count>0){
+        let built = buildQuestions(cat, s, {max:30});
+        built = shuffle(built);
+        subQs.push({ cat, sub:s, qList: built });
+      }
+    });
+    if(!subQs.length){ alert("Esta materia no tiene ítems cargados."); return; }
+    // Flatten with separators (we'll track sub segments)
+    const segments = subQs;
+    const flat = segments.flatMap(x=> x.qList.map(q => ({...q, __sub:x.sub})));
+    runCompositeExam({ scope:'CAT', title:`Examen — ${cat.name}`, catName:cat.name, segments, flat });
+  }
+
+  function startExamGlobal(){
+    const cats = ensureDefaults();
+    const segments = [];
+    cats.forEach(cat=>{
+      let any=false;
+      cat.subs.forEach(s=>{
+        const bank = getBank(cat.key, s);
+        if(bank.pairs.length + bank.mc.length) any=true;
+      });
+      if(!any) return;
+      // build up to 30 per materia (no matter how many subs; we aggregate across subs evenly-ish)
+      // strategy: build pool per sub, then round-robin until 30 or exhausted
+      const perSubBuilt = cat.subs.map(s=>{
+        const bank = getBank(cat.key, s);
+        if(bank.pairs.length + bank.mc.length){
+          return buildQuestions(cat, s, {max:999});
+        } else return [];
+      });
+      const selected = [];
+      let ptr=0;
+      while(selected.length<30){
+        let progressed=false;
+        for(let i=0;i<perSubBuilt.length;i++){
+          const arr = perSubBuilt[(i+ptr)%perSubBuilt.length];
+          if(arr.length){
+            selected.push(arr.shift());
+            progressed=true;
+            if(selected.length>=30) break;
+          }
+        }
+        if(!progressed) break; // all empty
+      }
+      if(selected.length){
+        segments.push({ cat, sub:'(mixto)', qList: shuffle(selected).slice(0,30) });
+      }
+    });
+    if(!segments.length){ alert("No hay materias con ítems cargados."); return; }
+    const flat = segments.flatMap(x=> x.qList.map(q => ({...q, __cat:x.cat.name})));
+    runCompositeExam({ scope:'ALL', title:`Examen — Global`, segments, flat });
+  }
+
+  function runCompositeExam({scope, title, segments, flat}){
+    // simple exam runner across flat list, with timer option prompt
+    const wantTimer = confirm("¿Activar temporizador? 45 s por pregunta.");
+    let qList = shuffle(flat.slice());
+    const answers = new Array(qList.length).fill(null);
+    let idx=0;
+    let remaining = wantTimer ? qList.length * 45 : null;
+    let timerId=null;
+
+    function render(){
+      setMode('EXAMEN');
+      const q = qList[idx];
+      app.innerHTML = `
+        <section class="card">
+          <div class="row">
+            ${pill(scope==='ALL'?'Examen global':'Examen por materia')}
+            ${pill(`${idx+1}/${qList.length}`)}
+            ${wantTimer ? `<span class="pill timer">⏱️ <b id="timeLeft">${fmtTime(remaining)}</b></span>`:''}
+            <span class="right"></span>
+            ${btn('Salir','ghost','id="btnExit"')}
+          </div>
+          <h3>${escapeHTML(title)}</h3>
+          <div class="caps">Definición</div>
+          <div class="code" style="margin:6px 0 10px">${escapeHTML(q.def)}</div>
+          <div class="caps">Selecciona el término</div>
+          <div id="opts"></div>
+          <div class="row" style="margin-top:10px">
+            ${btn('Anterior','ghost','id="btnPrev"')}
+            <span class="right"></span>
+            ${ idx < qList.length-1 ? btn('Siguiente','primary','id="btnNext"') : btn('Finalizar','ok','id="btnFinish"') }
+          </div>
+        </section>
+      `;
+      const optsWrap = el('#opts');
+      q.options.forEach((op,i)=>{
+        const d=document.createElement('div');
+        d.className = 'option' + (answers[idx]===i?' selected':'');
+        d.textContent = op.text;
+        d.onclick = ()=>{
+          answers[idx]=i;
+          if(el('#btnFinish')) el('#btnFinish').dataset.ready="1";
+          document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));
+          d.classList.add('selected');
+        };
+        optsWrap.appendChild(d);
+      });
+
+      el('#btnPrev').onclick = ()=>{ if(idx>0){ idx--; render(); } };
+      if(el('#btnNext')) el('#btnNext').onclick = ()=>{ if(idx<qList.length-1){ idx++; render(); } };
+      el('#btnExit').onclick = ()=>{
+        if(confirm("¿Abortar examen?")) goHome();
+      };
+      if(el('#btnFinish')) el('#btnFinish').onclick = ()=>{
+        const missing = answers.findIndex(a=>a===null);
+        if(missing!==-1){ alert(`Falta responder la pregunta ${missing+1}.`); idx=missing; render(); return; }
+        grade();
+      };
+
+      if(wantTimer){
+        if(timerId) clearInterval(timerId);
+        timerId = setInterval(()=>{
+          remaining--;
+          const t = el('#timeLeft'); if(t) t.textContent = fmtTime(Math.max(0,remaining));
+          if(remaining<0){ clearInterval(timerId); grade(true); }
+        },1000);
+      }
+    }
+
+    function grade(timedOut=false){
+      const right = answers.reduce((a,ans,i)=> a + (ans!==null && qList[i].options[ans].correct?1:0), 0);
+      const total = qList.length;
+      const score100 = Math.round((right/total)*100);
+      addAttempt({ date:new Date().toISOString(), scope, catName: scope==='ALL'?'GLOBAL':segments.map(s=>s.cat.name).join(', '), right, total, score100 });
+      renderResults({mode:'EXAMEN', cat:{name:'(varias)'}, sub:null, qList, answers, right, total, score100, allowRetry:false, timedOut});
+    }
+
+    render();
+  }
+
+  /* ============================ STATS VIEW ============================ */
+  function renderStats(){
+    setMode('Estadística');
+    const stats = getStats().slice().reverse(); // latest first
+    const last5 = stats.slice(0,5);
+    const overallAvg = avg(stats.map(s=>s.score100));
+
+    // By Materia
+    const byCat = {};
+    stats.forEach(s=>{
+      const k = s.catName || '(desconocida)';
+      (byCat[k] ||= []).push(s.score100);
+    });
+    const catRows = Object.entries(byCat).map(([k,arr])=>`<tr><td>${escapeHTML(k)}</td><td>${arr.length}</td><td>${avg(arr)}</td></tr>`).join('') || `<tr><td colspan="3" class="muted">Sin intentos.</td></tr>`;
+
+    // By Submateria
+    const bySub = {};
+    stats.forEach(s=>{
+      const k = (s.catName||'?')+' › '+(s.subName||'(mixto)');
+      (bySub[k] ||= []).push(s.score100);
+    });
+    const subRows = Object.entries(bySub).map(([k,arr])=>`<tr><td>${escapeHTML(k)}</td><td>${arr.length}</td><td>${avg(arr)}</td></tr>`).join('') || `<tr><td colspan="3" class="muted">Sin intentos.</td></tr>`;
+
+    const lastRows = last5.map(s=>`
+      <tr>
+        <td>${new Date(s.date).toLocaleString()}</td>
+        <td>${escapeHTML(s.scope)}</td>
+        <td>${escapeHTML(s.catName || '')}${s.subName? ' › '+escapeHTML(s.subName):''}</td>
+        <td>${s.right}/${s.total}</td>
+        <td>${s.score100}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="5" class="muted">Aún no hay intentos.</td></tr>`;
+
+    app.innerHTML = `
+      <section class="card">
+        <div class="row">
+          ${pill('📊 Estadística')}
+          <span class="right"></span>
+          ${btn('⬅️ Inicio','ghost','id="backHome"')}
+        </div>
+        <div class="kvs" style="margin-top:10px">
+          <div class="kv"><div class="tiny">Intentos</div><div><b>${stats.length}</b></div></div>
+          <div class="kv"><div class="tiny">Promedio general</div><div><b>${overallAvg}</b></div></div>
+        </div>
+        <div class="hr"></div>
+        <h3>Últimos 5 intentos</h3>
+        <div style="overflow:auto">
+          <table class="table">
+            <thead><tr><th>Fecha</th><th>Ámbito</th><th>Materia/Sub</th><th>Aciertos</th><th>Puntaje</th></tr></thead>
+            <tbody>${lastRows}</tbody>
+          </table>
+        </div>
+        <div class="grid cols-2" style="margin-top:14px">
+          <div class="card">
+            <h3>Por Materia</h3>
+            <table class="table"><thead><tr><th>Materia</th><th>Intentos</th><th>Promedio</th></tr></thead><tbody>${catRows}</tbody></table>
+          </div>
+          <div class="card">
+            <h3>Por Submateria</h3>
+            <table class="table"><thead><tr><th>Materia › Sub</th><th>Intentos</th><th>Promedio</th></tr></thead><tbody>${subRows}</tbody></table>
+          </div>
+        </div>
+      </section>
+    `;
+    el('#backHome').onclick = goHome;
+  }
+
+  /* ============================ BOOT ============================ */
+  bootFromEmbedIfAny();
+  ensureDefaults();
+  renderHome();
+
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+  });
+}
+</script>
+
+</body>
+</html>
