@@ -4,6 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>M&A • MISION ALPHA — Sistema de Estudio/Examen</title>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
 <style>
   :root{
     --bg:#0b1220; --bg2:#0e1629; --card:#121a2f; --ink:#e9eefc; --muted:#b7c3e0;
@@ -1336,7 +1338,7 @@ La comunicación intrapersonal es un proceso con uno mismo..."></textarea>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+    navigator.serviceWorker.register("service-worker.js").catch(console.error);
   });
 }
 </script>
